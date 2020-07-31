@@ -1,5 +1,5 @@
 #!/bin/bash
-/app/scripts/wait_for.sh ofdAgregatorRedis:6379 -t 15 -- echo "Redis (ofdAgregatorRedis) is up!"
+/app/scripts/wait_for.sh ofdAgregatorRedisFiveStar:6379 -t 15 -- echo "Redis (ofdAgregatorRedisFiveStar) is up!"
 
 python /app/manage.py collectstatic --noinput
 
