@@ -46,7 +46,7 @@ class FiveStarRepository:
         #         #             values_for_subject_in_month[subject['subject']] = []
         #         #         values_for_subject_in_month[subject['subject']].append(subject['count'])
         #         # olo = values_for_subject_in_month
-
+        five_star_metrics = self.__class__.get_five_star_metrics()
         # metrics by dataverse
         metrics_by_dataverse = self.get_metrics_by_category_of_dataverses()
         return {
@@ -59,7 +59,7 @@ class FiveStarRepository:
         }
 
     @staticmethod
-    def get_five_star_metrics(self) -> dict:
+    def get_five_star_metrics() -> dict:
         return {}
 
     def get_cumulative_metrics(self, data_type: str, date_range: list) -> dict:
