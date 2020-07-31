@@ -1,12 +1,10 @@
 import json
-
 import pysolr
 import requests
 from pyDataverse.api import Api
+from rest_framework import status
 
-from dataverse_client.dataverse_client import DataverseClient
 from dataverse_client.exceptions import DataverseClientConnectionException
-from fivestar.settings.common import DATAVERSE_URL, SOLR_COLLECTION_URL
 
 
 class FiveStarDataManager:
@@ -35,8 +33,10 @@ class FiveStarDataManager:
 
     def change_file_rating(self, persistent_file_id: str, rate: int) -> bool:
         url = 'https://dataverse.whiteaster.com/api/files/3/metadata'
-        data = {'description': 'true'}
+        data = {"description": "adawwdad"}
         headers = {'X-Dataverse-key': "9c9d2213-482d-405d-9490-96b984b96898"}
 
         r = requests.post(url, data=json.dumps(data), headers=headers)
-        return True
+        if r.status_code == status.HTTP_200_OK:
+            return True
+        return False

@@ -1,8 +1,10 @@
 import datetime
 from datetime import datetime as dt
+
+import pandas
 from django.http import JsonResponse
 from rest_framework.views import APIView
-import pandas
+
 from five_star_repository.five_star_repository import FiveStarRepository
 
 
@@ -14,8 +16,8 @@ class FiveStarStats(APIView):
 
     def get(self, request):
         five_star_repository = FiveStarRepository().rate_files()
-        response = {'test': "Test"}
-        return JsonResponse(response)
+        response = {'test': five_star_repository}
+        return JsonResponse(response, safe=False)
 
 
 class Metrics(APIView):
@@ -31,8 +33,10 @@ class Metrics(APIView):
         from_date = dt.strptime(from_date_string, '%Y-%m').replace(day=1)
         first_month_in_ragne = from_date - datetime.timedelta(days=1)
         to_date = dt.strptime(to_date_string, '%Y-%m')
-        months = pandas.date_range(first_month_in_ragne.strftime("%Y-%m"), to_date.strftime("%Y-%m"),
+        months = pandas.date_range(first_month_in_ragne.strftime("%Y-%m"),
+                                   to_date.strftime("%Y-%m"),
                                    freq='MS').strftime("%Y-%m").tolist()
-        metrics_for_date_range = FiveStarRepository().get_metrics(data_type, date_range=months)
+        metrics_for_date_range = FiveStarRepository().get_metrics(data_type,
+                                                                  date_range=months)
 
         return JsonResponse(metrics_for_date_range, safe=False)

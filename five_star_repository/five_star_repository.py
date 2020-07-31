@@ -54,8 +54,13 @@ class FiveStarRepository:
             'total': total,
             'months_percent': {month: "%.2f" % (current / total) for month, current in month_metrics.items()},
             'by_subject': cumulative_metrics_by_subject,
-            'by_dataverse': metrics_by_dataverse
+            'by_dataverse': metrics_by_dataverse,
+            'five_star_metrics': five_star_metrics
         }
+
+    @staticmethod
+    def get_five_star_metrics(self) -> dict:
+        return {}
 
     def get_cumulative_metrics(self, data_type: str, date_range: list) -> dict:
         cumulative_metrics = {}

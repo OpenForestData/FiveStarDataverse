@@ -96,7 +96,8 @@ class DataverseDetailDatasetClientResponse(DataverseClientResponse):
         data_basic_format['providers'] = []
         try:
             fields = {key['typeName']: key for key in
-                      data_basic_format['latestVersion']['metadataBlocks']['citation']['fields']}
+                      data_basic_format['latestVersion']['metadataBlocks']
+                      ['citation']['fields']}
         except AttributeError:
             fields = None
         keys = fields.keys()
