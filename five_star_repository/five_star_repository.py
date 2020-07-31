@@ -60,7 +60,16 @@ class FiveStarRepository:
 
     @staticmethod
     def get_five_star_metrics() -> dict:
-        return {}
+        ratings = [
+            {"star": 1, "amount": 1234},
+            {"star": 2, "amount": 254},
+            {"star": 3, "amount": 5123},
+            {"star": 4, "amount": 1924},
+            {"star": 5, "amount": 789}
+        ]
+        all_files_amount = sum([rate["amount"] for rate in ratings])
+        percent_ratings = [{rate["star"]: "%.2f" % (rate["amount"] / all_files_amount)} for rate in ratings]
+        return {"ratings": ratings, "percent_ratings": percent_ratings}
 
     def get_cumulative_metrics(self, data_type: str, date_range: list) -> dict:
         cumulative_metrics = {}
