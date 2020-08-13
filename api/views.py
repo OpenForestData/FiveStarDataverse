@@ -15,8 +15,8 @@ class FiveStarStats(APIView):
     permission_classes = ()
 
     def get(self, request):
-        five_star_repository = FiveStarRepository().rate_files()
-        response = {'test': five_star_repository}
+        five_star_repository = FiveStarRepository().get_five_star_metrics()
+        response = {'rating': five_star_repository}
         return JsonResponse(response, safe=False)
 
 
@@ -38,5 +38,4 @@ class Metrics(APIView):
                                    freq='MS').strftime("%Y-%m").tolist()
         metrics_for_date_range = FiveStarRepository().get_metrics(data_type,
                                                                   date_range=months)
-
         return JsonResponse(metrics_for_date_range, safe=False)

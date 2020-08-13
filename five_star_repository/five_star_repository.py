@@ -16,9 +16,7 @@ class FiveStarRepository:
     def __init__(self):
         self.__client = DataverseClient(Api(DATAVERSE_URL),
                                         pysolr.Solr(SOLR_COLLECTION_URL))
-        self.__five_star_manager = FiveStarDataManager(
-            Api("https://dataverse.whiteaster.com", api_token="9c9d2213-482d-405d-9490-96b984b96898"),
-            pysolr.Solr("http://192.168.1.241:8985/solr/collection1/"))
+        self.__five_star_manager = FiveStarDataManager(pysolr.Solr(SOLR_COLLECTION_URL))
 
     @cached
     def get_metrics(self, data_type: str, date_range: list):
@@ -46,7 +44,7 @@ class FiveStarRepository:
         #         #             values_for_subject_in_month[subject['subject']] = []
         #         #         values_for_subject_in_month[subject['subject']].append(subject['count'])
         #         # olo = values_for_subject_in_month
-        five_star_metrics = self.__class__.get_five_star_metrics()
+        five_star_metrics = self.get_five_star_metrics()
         # metrics by dataverse
         metrics_by_dataverse = self.get_metrics_by_category_of_dataverses()
         return {
@@ -58,17 +56,17 @@ class FiveStarRepository:
             'five_star_metrics': five_star_metrics
         }
 
-    @staticmethod
-    def get_five_star_metrics() -> dict:
+    def get_five_star_metrics(self) -> dict:
         ratings = [
-            {"star": 1, "amount": 1234},
-            {"star": 2, "amount": 254},
-            {"star": 3, "amount": 5123},
-            {"star": 4, "amount": 1924},
-            {"star": 5, "amount": 789}
+            {"star": 1, "amount": self.get_star_amount_for_rate(1)},
+            {"star": 2, "amount": self.get_star_amount_for_rate(2)},
+            {"star": 3, "amount": self.get_star_amount_for_rate(3)},
+            {"star": 4, "amount": self.get_star_amount_for_rate(4)},
+            {"star": 5, "amount": self.get_star_amount_for_rate(5)}
         ]
         all_files_amount = sum([rate["amount"] for rate in ratings])
         percent_ratings = [{rate["star"]: "%.2f" % (rate["amount"] / all_files_amount)} for rate in ratings]
+        self.rate_files()
         return {"ratings": ratings, "percent_ratings": percent_ratings}
 
     def get_cumulative_metrics(self, data_type: str, date_range: list) -> dict:
@@ -86,5 +84,10 @@ class FiveStarRepository:
     def get_metrics_by_category_of_dataverses(self) -> dict:
         return self.__client.get_metrics_by_category_of_dataverses().get_data()
 
+    @cached
+    def get_star_amount_for_rate(self, rate: int):
+        return self.__five_star_manager.get_files_amount_with_rating(rate)
+
     def rate_files(self):
-        self.__five_star_manager.change_file_rating("3", 1)
+        self.__five_star_manager.rate_files()
+        return True

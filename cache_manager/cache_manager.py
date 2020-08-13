@@ -26,12 +26,12 @@ class CacheManager:
         return True
 
 
-def cached(func):
+def cached(func, **kwargs):
     @wraps(func)
     def wrapper(*args, **kwargs):
         cache_manager = CacheManager()
         key_parts = [func.__module__, args[0].__class__.__name__, func.__name__] + list(
-            args[1:]) + list(', '.join('%s=%r' % x for x in kwargs.items()))
+            ', '.join('%s' % x for x in args[1:])) + list(', '.join('%s=%r' % x for x in kwargs.items()))
         key = '-'.join(key_parts)
         try:
             result = cache_manager.get(key)
