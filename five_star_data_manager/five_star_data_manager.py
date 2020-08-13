@@ -2,7 +2,6 @@ import pysolr
 import requests
 from rest_framework import status
 
-from cache_manager.cache_manager import cached
 from dataverse_client.exceptions import DataverseClientConnectionException
 from fivestar.settings.common import DATAVERSE_URL, DATAVERSE_KEY
 
