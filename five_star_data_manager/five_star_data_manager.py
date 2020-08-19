@@ -2,6 +2,7 @@ import pysolr
 import requests
 from rest_framework import status
 
+from cache_manager.cache_manager import cached
 from dataverse_client.exceptions import DataverseClientConnectionException
 from fivestar.settings.common import DATAVERSE_URL, DATAVERSE_KEY
 
@@ -36,6 +37,12 @@ class FiveStarDataManager:
 
     @staticmethod
     def publish_dataset(dataset_identifier: str):
+        """
+        Static method responsible for publication of dataset based on
+        its identifier
+        :param dataset_identifier:
+        :return:
+        """
         url = DATAVERSE_URL + f'/api/datasets/:persistentId/actions/:publish?' \
                               f'persistentId={dataset_identifier}&type=updatecurrent'
         headers = {
@@ -47,7 +54,13 @@ class FiveStarDataManager:
         return False
 
     @staticmethod
-    def change_file_rating(persistent_file_id: str, rate: int) -> bool:
+    def change_file_rating(persistent_file_id: str, rate: int):
+        """
+        Method responsible for changing file rating in dataverse
+        :param persistent_file_id: persistent file id
+        :param rate: new rate - should b from 1-5
+        :return: None
+        """
         url = DATAVERSE_URL + f'/api/files/{persistent_file_id}/metadata'
         headers = {
             'X-Dataverse-key': DATAVERSE_KEY,
@@ -58,17 +71,26 @@ class FiveStarDataManager:
         }
         response = requests.post(url, headers=headers, files=files)
         if response.status_code == status.HTTP_200_OK:
-            return True
-        return False
+            print(f"Zmieniono: {persistent_file_id}")
 
-    def get_files_amount_with_rating(self, rating: int):
+    def get_files_amount_with_rating(self, rating: int) -> str:
+        """
+        Method responsible for getting amount of files with
+        given rate
+        :param rating: rating
+        :return: number of filest with given rating
+        """
         response = self.__solr_client.search("*", **{
             'fq': ['dvObjectType:files', 'publicationStatus:Published', f'fileTags:{rating}']})
         return response.raw_response.get('response', {}).get('numFound', '0')
 
-    # @cached
+    @cached
     def rate_files(self):
-        # TODO: Run as celery task each 15 minutes
+        """
+        Method responsible for setting proper rates for each file based on
+        5 star client assumptions
+        :return: None
+        """
         one_star_files_ids = self.find_files_for_one_star_rate()
         self.change_files_rating(one_star_files_ids, 1)
         two_star_files_ids = self.find_file_for_two_star_rate()
@@ -77,11 +99,29 @@ class FiveStarDataManager:
         self.change_files_rating(three_star_files_ids, 3)
         four_star_files_ids = self.find_file_for_four_star_rate()
         self.change_files_rating(four_star_files_ids, 4)
-        # five_star_files_ids = self.find_file_for_five_star_rate()
-        # self.change_files_rating(five_star_files_ids, 5)
-        return True
+        five_star_files_ids = self.find_file_for_five_star_rate()
+        self.change_files_rating(five_star_files_ids, 5)
+
+    def find_files_with_any_value_in_file_tag_field(self, rows_amount=10) -> list:
+        """
+        Finds all files with any value in rate - fileTag
+        :return: list of identifiers of files and identifiers of dataverses
+        """
+        response = self.__solr_client.search("*", **{
+            'fq': ['publicationStatus:Published',
+                   'fileTags:*',
+                   'dvObjectType:files',
+                   ], 'fl': ['identifier', 'parentIdentifier'], 'rows': str(rows_amount)})
+        return [{'identifier': doc['identifier'],
+                 'parentIdentifier': doc['parentIdentifier'] if 'parentIdentifier' in doc else ""} for doc in
+                response.docs]
 
     def find_files_for_one_star_rate(self):
+        """
+        Finds all files for 1 value in rate - fileTag
+        based on client assumptions
+        :return: list of identifiers of files and identifiers of dataverses
+        """
         response = self.__solr_client.search("*", **{
             'fq': ['publicationStatus:Published',
                    '{!join from=identifier to=parentIdentifier}dwctestLicense:(CC0 OR CC-BY OR CC-BY-SA)',
@@ -90,6 +130,11 @@ class FiveStarDataManager:
         return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
 
     def find_file_for_two_star_rate(self):
+        """
+        Finds all files for 2 value in rate - fileTag
+        based on client assumptions
+        :return: list of identifiers of files and identifiers of dataverses
+        """
         response = self.__solr_client.search("*", **{
             'fq': ['publicationStatus:Published',
                    '-name:(*txt OR *tsv OR *tab OR *csv OR *ods OR *odf OR *odt OR *ott OR *odm OR *ots OR *odg \
@@ -105,6 +150,11 @@ class FiveStarDataManager:
                 response.docs]
 
     def find_file_for_three_star_rate(self):
+        """
+        Finds all files for 3 value in rate - fileTag
+        based on client assumptions
+        :return: list of identifiers of files and identifiers of dataverses
+        """
         response = self.__solr_client.search("*", **{
             'fq': ['publicationStatus:Published',
                    'name:(*txt OR *tsv OR *tab OR *csv OR *ods OR *odf OR *odt OR *ott OR *odm OR *ots OR *odg OR\
@@ -118,6 +168,11 @@ class FiveStarDataManager:
         return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
 
     def find_file_for_four_star_rate(self):
+        """
+        Finds all files for 4 value in rate - fileTag
+        based on client assumptions
+        :return: list of identifiers of files and identifiers of dataverses
+        """
         response = self.__solr_client.search("*", **{
             'fq': ['publicationStatus:Published',
                    'parentIdentifier:*doi*',
@@ -127,8 +182,18 @@ class FiveStarDataManager:
         return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
 
     def find_file_for_five_star_rate(self):
+        """
+        Finds all files for 5 value in rate - fileTag
+        based on client assumptions
+        :return: list of identifiers of files and identifiers of dataverses
+        """
         response = self.__solr_client.search("*", **{
             'fq': ['publicationStatus:Published',
+                   'keywordVocabularyURI:*',
+                   'topicClassVocabURI',
+                   'publicationURL',
+                   'producerURL',
+                   'distributorURL',
                    'parentIdentifier:*doi*',
                    'fileTags:0',
                    'dvObjectType:files'

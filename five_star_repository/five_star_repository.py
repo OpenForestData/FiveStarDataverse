@@ -34,18 +34,8 @@ class FiveStarRepository:
                              'count' in x and 'count' in y]
         month_metrics = dict(zip(dates[1:], metrics_per_month))
         total = sum([value for _, value in month_metrics.items()])
-
-        # dataset by subject
         cumulative_metrics_by_subject = self.get_cumulative_metrics_by_subject(date_range)
-        # values_for_subject_in_month = {}
-        #         # for _, list_of_subjects in cumulative_metrics_by_subject.items():
-        #         #     for subject in list_of_subjects:
-        #         #         if subject['subject'] not in values_for_subject_in_month:
-        #         #             values_for_subject_in_month[subject['subject']] = []
-        #         #         values_for_subject_in_month[subject['subject']].append(subject['count'])
-        #         # olo = values_for_subject_in_month
         five_star_metrics = self.get_five_star_metrics()
-        # metrics by dataverse
         metrics_by_dataverse = self.get_metrics_by_category_of_dataverses()
         return {
             'months': month_metrics,
