@@ -92,7 +92,11 @@ class FiveStarDataManager:
     def find_file_for_two_star_rate(self):
         response = self.__solr_client.search("*", **{
             'fq': ['publicationStatus:Published',
-                   '-name:(*txt OR *tsv OR *tab OR *csv OR *ods OR *odf OR *odt OR *ott OR *odm OR *ots OR *odg OR *otg OR *odp OR *otp OR *odf OR *odc OR *odb OR *cdf OR *nc OR *hdf OR *h5 OR *xml OR *json OR *html OR *jpg OR *jp2 OR *png OR *svg OR *tiff OR *tif OR *wav OR *aiff OR *flac OR *mp3 OR *mp4 OR *mj2 OR *shp OR *shx OR *dbf OR *kml OR *gml OR *wkt OR *gpkg OR *geojson OR *tex OR *odt OR *epub OR *zip OR *gzip OR *tar OR *gz OR *css OR *djvu OR *gpx OR *yaml OR *obj)',
+                   '-name:(*txt OR *tsv OR *tab OR *csv OR *ods OR *odf OR *odt OR *ott OR *odm OR *ots OR *odg \
+                   OR *otg OR *odp OR *otp OR *odf OR *odc OR *odb OR *cdf OR *nc OR *hdf OR *h5 OR *xml OR *json\
+                    OR *html OR *jpg OR *jp2 OR *png OR *svg OR *tiff OR *tif OR *wav OR *aiff OR *flac OR *mp3 OR\
+                     *mp4 OR *mj2 OR *shp OR *shx OR *dbf OR *kml OR *gml OR *wkt OR *gpkg OR *geojson OR *tex OR\
+                      *odt OR *epub OR *zip OR *gzip OR *tar OR *gz OR *css OR *djvu OR *gpx OR *yaml OR *obj)',
                    'fileTags:0',
                    'dvObjectType:files'
                    ], 'fl': ['identifier', 'parentIdentifier']})
