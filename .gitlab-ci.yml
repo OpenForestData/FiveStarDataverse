@@ -16,7 +16,7 @@ sonarqube:
     stage: sonarqube
     before_script: []
     script:
-        - sonar-scanner Dsonar.projectKey=five_star-openforestdata Dsonar.sources=. Dsonar.host.url=https://sonarqube.whiteaster.com Dsonar.login=a4ea0fb44a00f37be5b5e7ebdd1dae4e2e6652e1      
+        - sonar-scanner -Dsonar.projectKey=five_star-openforestdata -Dsonar.sources=. -Dsonar.host.url=https://sonarqube.whiteaster.com -Dsonar.login=a4ea0fb44a00f37be5b5e7ebdd1dae4e2e6652e1      
     only:
         - master
 
