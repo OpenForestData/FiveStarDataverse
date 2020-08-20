@@ -1,0 +1,81 @@
+image: python:3.6-slim-buster
+
+stages:
+    - sonarqube
+    - code checks
+    - build
+
+before_script:
+    - apt update
+    - apt install git python3-dev libpq-dev libsasl2-dev build-essential gcc -y
+    - pip install -U pip
+    - pip install --ignore-installed -r requirements.txt
+
+sonarqube:
+    image: sonarsource/sonar-scanner-cli
+    stage: sonarqube
+    before_script: []
+    script:
+        - sonar-scanner Dsonar.projectKey=five_star-openforestdata Dsonar.sources=. Dsonar.host.url=https://sonarqube.whiteaster.com Dsonar.login=a4ea0fb44a00f37be5b5e7ebdd1dae4e2e6652e1      
+    only:
+        - master
+
+PyLint:
+    stage: code checks
+    allow_failure: true
+    script:
+        - pip install pylint pylint_django
+        - pylint --rcfile ./.pylintrc api cache_manager dataverse_client five_star_data_manager five_star_repository fivestar
+
+Flake8:
+    stage: code checks
+    before_script:
+        - echo "pass"    
+    script:
+        - apt update && apt install git -y
+        - pip install flake8
+        - flake8 .
+
+Piprot:
+    stage: code checks
+    allow_failure: true
+    script:
+        - pip install piprot
+        - piprot
+
+PipCheck:
+    stage: code checks
+    allow_failure: true
+    script:
+        - pip check
+
+Safety:
+    stage: code checks
+    allow_failure: true
+    script:
+        - pip install safety
+        - safety check -r requirements.txt
+
+Build docker dev image:
+    image: 
+        name: gcr.io/kaniko-project/executor:debug
+        entrypoint: [""]
+    before_script: []
+    stage: build
+    script:
+        - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"gitlab-ci-token\",\"password\":\"$CI_JOB_TOKEN\"}}}" > /kaniko/.docker/config.json
+        - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
+    except:
+        - master
+
+Build docker master image:
+    image: 
+        name: gcr.io/kaniko-project/executor:debug
+        entrypoint: [""]
+    before_script: []
+    stage: build
+    script:
+        - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"gitlab-ci-token\",\"password\":\"$CI_JOB_TOKEN\"}}}" > /kaniko/.docker/config.json
+        - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG --destination $CI_REGISTRY_IMAGE:latest
+    only:
+        - master

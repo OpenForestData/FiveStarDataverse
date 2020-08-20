@@ -11,7 +11,7 @@ from fivestar.settings import settings
 
 main_url_patterns = [
     # api for dataverse
-    path('api/v1/', include('api.urls', namespace='api'))
+    path('api-five/v1/', include('api.urls', namespace='api'))
 ]
 
 # Swagger endpoints configuration

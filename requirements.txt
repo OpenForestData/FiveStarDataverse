@@ -17,14 +17,17 @@ itypes==1.2.0
 Jinja2==2.11.2
 MarkupSafe==1.1.1
 more-itertools==8.3.0
+numpy==1.19.1
 packaging==20.4
+pandas==1.1.0
 pluggy==0.13.1
 psycopg2==2.8.5
 py==1.8.1
-pyDataverse @ git+https://gitlab.whiteaster.com/public_data/pydataverse-upgrade.git@92e0f0c4d6d45025d2871ea7a315a2477e4331b6
+pyDataverse==0.2.1
 pyparsing==2.4.7
 pysolr==3.9.0
 pytest==5.4.2
+python-dateutil==2.8.1
 pytz==2020.1
 redis==3.5.3
 requests==2.23.0
