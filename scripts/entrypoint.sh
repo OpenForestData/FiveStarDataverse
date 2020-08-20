@@ -3,6 +3,6 @@
 
 python /app/manage.py collectstatic --noinput
 
-python /app/five_star_data_manager/five_star_data_manager.py
+python /app/five_star_data_manager.py
 
 python /app/manage.py runserver 0.0.0.0:8000
