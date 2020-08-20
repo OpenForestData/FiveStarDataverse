@@ -4,8 +4,9 @@ from time import sleep
 import pysolr
 import requests
 from rest_framework import status
+
 from dataverse_client.exceptions import DataverseClientConnectionException
-from fivestar.settings.common import DATAVERSE_URL, DATAVERSE_KEY, SOLR_COLLECTION_URL
+from fivestar.settings.common import DATAVERSE_URL, DATAVERSE_KEY
 
 
 class FiveStarDataManager:
@@ -201,4 +202,3 @@ class FiveStarDataManager:
                    'dvObjectType:files'
                    ], 'fl': ['identifier', 'parentIdentifier']})
         return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
-
