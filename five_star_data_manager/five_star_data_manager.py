@@ -1,10 +1,11 @@
+import os
+from time import sleep
+
 import pysolr
 import requests
 from rest_framework import status
-
-from cache_manager.cache_manager import cached
 from dataverse_client.exceptions import DataverseClientConnectionException
-from fivestar.settings.common import DATAVERSE_URL, DATAVERSE_KEY
+from fivestar.settings.common import DATAVERSE_URL, DATAVERSE_KEY, SOLR_COLLECTION_URL
 
 
 class FiveStarDataManager:
@@ -84,23 +85,24 @@ class FiveStarDataManager:
             'fq': ['dvObjectType:files', 'publicationStatus:Published', f'fileTags:{rating}']})
         return response.raw_response.get('response', {}).get('numFound', '0')
 
-    @cached
     def rate_files(self):
         """
         Method responsible for setting proper rates for each file based on
         5 star client assumptions
         :return: None
         """
-        one_star_files_ids = self.find_files_for_one_star_rate()
-        self.change_files_rating(one_star_files_ids, 1)
-        two_star_files_ids = self.find_file_for_two_star_rate()
-        self.change_files_rating(two_star_files_ids, 2)
-        three_star_files_ids = self.find_file_for_three_star_rate()
-        self.change_files_rating(three_star_files_ids, 3)
-        four_star_files_ids = self.find_file_for_four_star_rate()
-        self.change_files_rating(four_star_files_ids, 4)
-        five_star_files_ids = self.find_file_for_five_star_rate()
-        self.change_files_rating(five_star_files_ids, 5)
+        while True:
+            one_star_files_ids = self.find_files_for_one_star_rate()
+            self.change_files_rating(one_star_files_ids, 1)
+            two_star_files_ids = self.find_file_for_two_star_rate()
+            self.change_files_rating(two_star_files_ids, 2)
+            three_star_files_ids = self.find_file_for_three_star_rate()
+            self.change_files_rating(three_star_files_ids, 3)
+            four_star_files_ids = self.find_file_for_four_star_rate()
+            self.change_files_rating(four_star_files_ids, 4)
+            five_star_files_ids = self.find_file_for_five_star_rate()
+            self.change_files_rating(five_star_files_ids, 5)
+            sleep(int(os.environ.get('REFRESH_FIVE_STAR_TIME', 900)))
 
     def find_files_with_any_value_in_file_tag_field(self, rows_amount=10) -> list:
         """
@@ -199,3 +201,7 @@ class FiveStarDataManager:
                    'dvObjectType:files'
                    ], 'fl': ['identifier', 'parentIdentifier']})
         return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
+
+
+if __name__ == '__main__':
+    FiveStarDataManager(pysolr.Solr(SOLR_COLLECTION_URL)).rate_files()
