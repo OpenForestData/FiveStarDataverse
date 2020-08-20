@@ -202,6 +202,3 @@ class FiveStarDataManager:
                    ], 'fl': ['identifier', 'parentIdentifier']})
         return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
 
-
-if __name__ == '__main__':
-    FiveStarDataManager(pysolr.Solr(SOLR_COLLECTION_URL)).rate_files()
