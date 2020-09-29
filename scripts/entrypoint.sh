@@ -6,7 +6,7 @@ python /app/manage.py collectstatic --noinput
 
 printf "%s\n" "Uruchamianie skryptu rate five star"
 chmod +x /app/rate_five_star.py
-nohup /app/rate_five_star.py &
+nohup /app/rate_five_star.py > rate_five_star.out 2>&1
 
 printf "%s\n" "Uruchamianie aplikacji"
 python /app/manage.py runserver 0.0.0.0:8000
