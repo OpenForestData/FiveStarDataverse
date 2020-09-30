@@ -55,7 +55,10 @@ class FiveStarRepository:
             {"star": 5, "amount": self.get_star_amount_for_rate(5)}
         ]
         all_files_amount = sum([rate["amount"] for rate in ratings])
-        percent_ratings = [{rate["star"]: "%.2f" % (rate["amount"] / all_files_amount)} for rate in ratings]
+        if all_files_amount != 0:
+            percent_ratings = [{rate["star"]: "%.2f" % (rate["amount"] / all_files_amount)} for rate in ratings]
+        else:
+            percent_ratings = [{rate["star"]: "%.2f" % 0} for rate in ratings]
         return {"ratings": ratings, "percent_ratings": percent_ratings}
 
     def get_cumulative_metrics(self, data_type: str, date_range: list) -> dict:
