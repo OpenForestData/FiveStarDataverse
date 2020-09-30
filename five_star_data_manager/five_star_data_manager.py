@@ -103,7 +103,7 @@ class FiveStarDataManager:
             self.change_files_rating(four_star_files_ids, 4)
             five_star_files_ids = self.find_file_for_five_star_rate()
             self.change_files_rating(five_star_files_ids, 5)
-            print(f'Changed files ratins')
+            print('Changed files ratings')
             sleep(int(os.environ.get('REFRESH_FIVE_STAR_TIME', 900)))
 
     def find_files_with_any_value_in_file_tag_field(self, rows_amount=10) -> list:
