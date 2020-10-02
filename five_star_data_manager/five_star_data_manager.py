@@ -83,7 +83,8 @@ class FiveStarDataManager:
         :return: number of filest with given rating
         """
         response = self.__solr_client.search("*", **{
-            'fq': ['dvObjectType:files', 'publicationStatus:Published', f'fileTags:{rating}']})
+            'fq': ['dvObjectType:files', 'publicationStatus:Published',
+                   f'fileTags:{rating}']})
         return response.raw_response.get('response', {}).get('numFound', '0')
 
     def rate_files(self):
@@ -117,7 +118,8 @@ class FiveStarDataManager:
                    'dvObjectType:files',
                    ], 'fl': ['identifier', 'parentIdentifier'], 'rows': str(rows_amount)})
         return [{'identifier': doc['identifier'],
-                 'parentIdentifier': doc['parentIdentifier'] if 'parentIdentifier' in doc else ""} for doc in
+                 'parentIdentifier': doc[
+                     'parentIdentifier'] if 'parentIdentifier' in doc else ""} for doc in
                 response.docs]
 
     def find_files_for_one_star_rate(self):
@@ -128,10 +130,12 @@ class FiveStarDataManager:
         """
         response = self.__solr_client.search("*", **{
             'fq': ['publicationStatus:Published',
-                   '{!join from=identifier to=parentIdentifier}dwctestLicense:(CC0 OR CC-BY OR CC-BY-SA)',
+                   '{!join from=identifier to=parentIdentifier}dwcLicense:(CC0 OR CC-BY OR CC-BY-SA)',
                    'fileTags:0',
                    ], 'fl': ['identifier', 'parentIdentifier']})
-        return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
+        return [
+            {'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']}
+            for doc in response.docs]
 
     def find_file_for_two_star_rate(self):
         """
@@ -146,11 +150,12 @@ class FiveStarDataManager:
                     OR *html OR *jpg OR *jp2 OR *png OR *svg OR *tiff OR *tif OR *wav OR *aiff OR *flac OR *mp3 OR\
                      *mp4 OR *mj2 OR *shp OR *shx OR *dbf OR *kml OR *gml OR *wkt OR *gpkg OR *geojson OR *tex OR\
                       *odt OR *epub OR *zip OR *gzip OR *tar OR *gz OR *css OR *djvu OR *gpx OR *yaml OR *obj)',
-                   'fileTags:0',
+                   'fileTags:1',
                    'dvObjectType:files'
                    ], 'fl': ['identifier', 'parentIdentifier']})
         return [{'identifier': doc['identifier'],
-                 'parentIdentifier': doc['parentIdentifier'] if 'parentIdentifier' in doc else ""} for doc in
+                 'parentIdentifier': doc[
+                     'parentIdentifier'] if 'parentIdentifier' in doc else ""} for doc in
                 response.docs]
 
     def find_file_for_three_star_rate(self):
@@ -166,10 +171,12 @@ class FiveStarDataManager:
                     *html OR *jpg OR *jp2 OR *png OR *svg OR *tiff OR *tif OR *wav OR *aiff OR *flac OR *mp3 OR *mp4\
                      OR *mj2 OR *shp OR *shx OR *dbf OR *kml OR *gml OR *wkt OR *gpkg OR *geojson OR *tex OR *odt OR\
                       *epub OR *zip OR *gzip OR *tar OR *gz OR *css OR *djvu OR *gpx OR *yaml OR *obj)',
-                   'fileTags:0',
+                   'fileTags:1',
                    'dvObjectType:files'
                    ], 'fl': ['identifier', 'parentIdentifier']})
-        return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
+        return [
+            {'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']}
+            for doc in response.docs]
 
     def find_file_for_four_star_rate(self):
         """
@@ -180,10 +187,12 @@ class FiveStarDataManager:
         response = self.__solr_client.search("*", **{
             'fq': ['publicationStatus:Published',
                    'parentIdentifier:*doi*',
-                   'fileTags:0',
+                   'fileTags:3',
                    'dvObjectType:files'
                    ], 'fl': ['identifier', 'parentIdentifier']})
-        return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
+        return [
+            {'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']}
+            for doc in response.docs]
 
     def find_file_for_five_star_rate(self):
         """
@@ -191,15 +200,95 @@ class FiveStarDataManager:
         based on client assumptions
         :return: list of identifiers of files and identifiers of dataverses
         """
-        response = self.__solr_client.search("*", **{
-            'fq': ['publicationStatus:Published',
-                   'keywordVocabularyURI:*',
-                   'topicClassVocabURI',
-                   'publicationURL',
-                   'producerURL',
-                   'distributorURL',
-                   'parentIdentifier:*doi*',
-                   'fileTags:0',
-                   'dvObjectType:files'
-                   ], 'fl': ['identifier', 'parentIdentifier']})
-        return [{'identifier': doc['identifier'], 'parentIdentifier': doc['parentIdentifier']} for doc in response.docs]
+        final_response = []
+        # only single field filled is enough for five star grade
+        fields_to_check = ['keywordVocabularyURI',
+                           'topicClassVocabURI',
+                           'publicationURL',
+                           'producerURL',
+                           'distributorURL',
+                           'dwcInstitutionID',
+                           'dwcCollectionID',
+                           'dwcDatasetID',
+                           'dwcOccurenceID',
+                           'dwcAssociatedMedia',
+                           'dwcAssociatedReferences',
+                           'dwcAssociatedSequences',
+                           'dwcAssociatedTaxa',
+                           'dwcOrganismID',
+                           'dwcMaterialSampleID',
+                           'dwcEventID',
+                           'dwcParentEventID',
+                           'dwcLocationID',
+                           'dwcHigherGeographyID',
+                           'dwcGeologicalContextID',
+                           'dwcIdentificationID',
+                           'dwcTaxonID',
+                           'dwcScientificNameID',
+                           'dwcAcceptedNameUsageID',
+                           'dwcParentNameUsageID',
+                           'dwcOriginalNameUsageID',
+                           'dwcNameAccordingToID',
+                           'dwcNamePublishedInID',
+                           'dwcTaxonConceptID',
+                           'dwcMeasurementID',
+                           'dwcResourceRelationshipID',
+                           'dwcResourceID',
+                           'dwcRelatedResourceID',
+                           'dwciriInDescribedPlace',
+                           'dwciriIdentifiedBy',
+                           'dwciriRecordedBy',
+                           'dwciriToTaxon',
+                           'dwciriInCollection',
+                           'dwciriGeoreferencedBy',
+                           'dwciriBehavior',
+                           'dwciriDataGeneralizations',
+                           'dwciriDisposition',
+                           'dwciriEarliestGeochronologicalEra',
+                           'dwciriEstablishmentMeans',
+                           'dwciriFieldNotes',
+                           'dwciriFieldNumber',
+                           'dwciriFootprintSRS',
+                           'dwciriFootprintWKT',
+                           'dwciriFromLithostratigraphicUnit',
+                           'dwciriGeodeticDatum',
+                           'dwciriGeoreferenceProtocol',
+                           'dwciriGeoreferenceSources',
+                           'dwciriGeoreferenceVerificationStatus',
+                           'dwciriHabitat',
+                           'dwciriIdentificationQualifier',
+                           'dwciriIdentificationVerificationStatus',
+                           'dwciriInDataset',
+                           'dwciriInformationWithheld',
+                           'dwciriLatestGeochronologicalEra',
+                           'dwciriLifeStage',
+                           'dwciriLocationAccordingTo',
+                           'dwciriMeasurementDeterminedBy',
+                           'dwciriMeasurementMethod',
+                           'dwciriMeasurementType',
+                           'dwciriMeasurementUnit',
+                           'dwciriOccurrenceStatus',
+                           'dwciriOrganismQuantityType',
+                           'dwciriPreparations',
+                           'dwciriRecordNumber',
+                           'dwciriReproductiveCondition',
+                           'dwciriSampleSizeUnit',
+                           'dwciriSamplingProtocol',
+                           'dwciriSex',
+                           'dwciriTypeStatus',
+                           'dwciriVerbatimCoordinateSystem',
+                           'dwciriVerbatimSRS']
+        for field in fields_to_check:
+            try:
+                response = self.__solr_client.search("*", **{
+                    'fq': ['publicationStatus:Published',
+                           'fileTags:4',
+                           'dvObjectType:files',
+                           f'{field}:*'], 'fl': ['identifier', 'parentIdentifier']})
+                final_response += [
+                    {'identifier': doc['identifier'],
+                     'parentIdentifier': doc['parentIdentifier']}
+                    for doc in response.docs]
+            except AttributeError as ex:
+                print(ex)
+        return final_response
