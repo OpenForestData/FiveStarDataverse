@@ -282,7 +282,7 @@ class FiveStarDataManager:
             try:
                 response = self.__solr_client.search("*", **{
                     'fq': ['publicationStatus:Published',
-                           'fileTags:4',
+                           # 'fileTags:4',
                            'dvObjectType:files',
                            f'{field}:*'], 'fl': ['identifier', 'parentIdentifier']})
                 final_response += [
