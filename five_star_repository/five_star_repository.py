@@ -27,12 +27,20 @@ class FiveStarRepository:
         :return: dict with metrics per each month
         """
         cumulative_metrics = self.get_cumulative_metrics(data_type, date_range)
-        dates = [date_cumulative_metric for date_cumulative_metric, _ in cumulative_metrics.items()]
         cumulative_metrics_values = [value for _, value in cumulative_metrics.items()]
-        metrics_per_month = [y['count'] - x['count'] for x, y in
-                             zip(cumulative_metrics_values, cumulative_metrics_values[1:]) if
-                             'count' in x and 'count' in y]
-        month_metrics = dict(zip(dates[1:], metrics_per_month))
+        # metrics_per_month = [y['count'] - x['count'] for x, y in
+        #         #                      zip(cumulative_metrics_values, cumulative_metrics_values[1:]) if
+        #         #                      'count' in x and 'count' in y]
+        #         # month_metrics = dict(zip(date_range[1:], metrics_per_month))
+        last_value = 0
+        month_metrics = {}
+        for key, value in cumulative_metrics.items():
+            if 'count' in value:
+                if last_value == value['count']:
+                    month_metrics[key] = 0
+                else:
+                    month_metrics[key] = value['count'] - last_value
+                    last_value = value['count']
         total = sum([value for _, value in month_metrics.items()])
         cumulative_metrics_by_subject = self.get_cumulative_metrics_by_subject(date_range)
         five_star_metrics = self.get_five_star_metrics()
